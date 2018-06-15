@@ -1,0 +1,94 @@
+[
+  {
+    "id": "gitea-webhook",
+    "execute-command": "/webhooks/giteahook.py",
+    "command-working-directory": "/webhooks",
+    "pass-arguments-to-command":
+    [
+      {
+        "source": "string",
+        "name":   "{{ getenv "BK_TOKEN" | js }}"
+      },
+      {
+        "source": "string",
+        "name":   "{{ getenv "GT_SECRET" | js }}"
+      },
+      {
+        "source": "payload",
+        "name":   "secret"
+      },
+      {
+        "source": "payload",
+        "name":   "ref"
+      },
+      {
+        "source": "payload",
+        "name":   "after"
+      },
+      {
+        "source": "payload",
+        "name": "pusher.login"
+      },
+      {
+        "source": "payload",
+        "name": "pusher.email"
+      },
+      {
+        "source": "url",
+        "name":   "org_slug"
+      },
+      {
+        "source": "url",
+        "name":   "pipeline"
+      },
+      {
+        "source": "payload",
+        "name":   "commits.0.message"
+      }
+    ]
+  },
+  {
+    "id": "buildkite-webhook",
+    "execute-command": "/webhooks/buildkitehook.py",
+    "command-working-directory": "/webhooks",
+    "pass-arguments-to-command":
+    [
+      {
+        "source": "string",
+        "name":   "{{ getenv "GT_TOKEN" | js }}"
+      },
+      {
+        "source": "string",
+        "name":   "{{ getenv "BK_SECRET" | js }}"
+      },
+      {
+        "source": "header",
+        "name":   "X-Buildkite-Token"
+      },
+      {
+        "source": "payload",
+        "name":   "pipeline.repository"
+      },
+      {
+        "source": "payload",
+        "name":   "build.commit"
+      },
+      {
+        "source": "payload",
+        "name":   "build.web_url"
+      },
+      {
+        "source": "payload",
+        "name":   "event"
+      },
+      {
+        "source": "payload",
+        "name":   "build.state"
+      },
+      {
+        "source": "string",
+        "name":   "{{ getenv "GT_API_BASE" | js }}"
+      }
+    ]
+  }
+]
