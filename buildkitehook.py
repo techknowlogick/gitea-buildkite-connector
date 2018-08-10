@@ -28,6 +28,7 @@ def get_state_clean(state):
         'running': "pending",
         'success': "success",
         'failure': "failure",
+	'failed': "failure",
         'canceled': "failure",
         'blocked': "warning",
         'declined': "failure",
@@ -37,11 +38,12 @@ def get_state_clean(state):
 
 def get_desc(state):
 	return {
-		'scheduled': 'the build is scheduled',
+	'scheduled': 'the build is scheduled',
         'pending': "the build is pending",
         'running': "the build is running",
         'success': "the build was successful",
         'failure': "the build failed",
+	'failed': "the build failed",
         'canceled': "the build canceled",
         'blocked': "the build is pending approval",
         'declined': "the build was rejected",
