@@ -5,18 +5,13 @@ import sys
 
 bk_token = sys.argv[1]
 env_secret = sys.argv[2]
-url_secret = sys.argv[3]
-branch = sys.argv[4]
-commit = sys.argv[5]
-username = sys.argv[6]
-email = sys.argv[7]
-bk_org_slug = sys.argv[8]
-bk_pipeline = sys.argv[9]
-message = sys.argv[10]
-
-if env_secret != url_secret:
-	print("secrets don't match")
-	exit()
+branch = sys.argv[3]
+commit = sys.argv[4]
+username = sys.argv[5]
+email = sys.argv[6]
+bk_org_slug = sys.argv[7]
+bk_pipeline = sys.argv[8]
+message = sys.argv[9]
 
 clean_branch = branch.split("/")
 
