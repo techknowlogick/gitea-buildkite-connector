@@ -15,10 +15,6 @@
       },
       {
         "source": "payload",
-        "name":   "secret"
-      },
-      {
-        "source": "payload",
         "name":   "ref"
       },
       {
@@ -45,7 +41,25 @@
         "source": "payload",
         "name":   "commits.0.message"
       }
-    ]
+    ],
+     "trigger-rule":
+    {
+      "and":
+      [
+        {
+          "match":
+          {
+            "type": "payload-hash-sha256",
+            "secret": "{{ getenv "GT_SECRET" | js }}",
+            "parameter":
+            {
+              "source": "header",
+              "name": "X-Gitea-Signature"
+            }
+          }
+        }
+      ]
+    }
   },
   {
     "id": "buildkite-webhook",
