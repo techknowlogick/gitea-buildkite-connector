@@ -17,10 +17,20 @@ if env_secret != url_secret:
 	print("secrets don't match")
 	exit()
 
-repo_1 = repo.split(":")[1]
-repo_2 = repo_1.split("/")
-owner = repo_2[0]
-repo_clean = repo_2[1][:-4]
+if repo.startswith('http'):
+    repo_1 = repo.split("://")[1]
+    repo_2 = repo_1.split("/")
+    owner = repo_2[1]
+    if repo_2[2].endswith('.git'):
+        repo_clean = repo_2[2][:-4]
+    else:
+        repo_clean = repo_2[2]
+else:
+    repo_1 = repo.split(":")[1]
+    repo_2 = repo_1.split("/")
+    owner = repo_2[0]
+    repo_clean = repo_2[1][:-4]
+
 
 def get_state_clean(state):
     return {
