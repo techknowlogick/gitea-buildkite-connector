@@ -1,6 +1,3 @@
-module handler
-
-go 1.15
 
 require (
 	github.com/buildkite/go-buildkite/v2 v2.5.1
