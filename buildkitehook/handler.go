@@ -2,14 +2,16 @@ package function
 
 import (
 	"crypto/subtle"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"code.gitea.io/sdk/gitea"
+	"github.com/tidwall/gjson"
 )
 
 func Handle(w http.ResponseWriter, r *http.Request) {
+	queryString := r.URL.Query()
+
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusForbidden)
 		w.Write([]byte("HTTP Method Must be POST"))
@@ -17,18 +19,10 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urlSecret := r.Header.Get("X-Buildkite-Token")
-	envSecret := getAPISecret("buildkite-secret")
-	if !secureCompare(urlSecret, envSecret) {
+	envSecret, _ := getAPISecret("buildkite-secret")
+	if !secureCompare(urlSecret, string(envSecret)) {
 		w.WriteHeader(http.StatusForbidden)
 		w.Write([]byte("Secret Validation failed"))
-		return
-	}
-
-	var payload map[string]interface{}
-
-	err := json.NewDecoder(r.Body).Decode(&payload)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -45,16 +39,29 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var input []byte
+
+	if r.Body == nil {
+		// TODO: no json passed
+		return
+	}
+
+	defer r.Body.Close()
+
+	input, _ = ioutil.ReadAll(r.Body)
+
 	status := gitea.CreateStatusOption{
-		State:       getStateClean(payload["build"]["state"]),
-		TargetURL:   payload["build"]["web_url"],
-		Description: getDescription(payload["build"]["state"]),
+		State:       getStateClean(gjson.Get(string(input), "build.state").String()),
+		TargetURL:   gjson.Get(string(input), "build.web_url").String(),
+		Description: getDescription(gjson.Get(string(input), "build.state").String()),
 		Context:     "ci/buildkite",
 	}
 
-	giteaClient := gitea.NewClient(getAPISecret("gitea-api-base"), getAPISecret("gitea-token"))
+	apiBase, _ := getAPISecret("gitea-api-base")
+	giteaToken, _ := getAPISecret("gitea-token")
+	giteaClient, _ := gitea.NewClient(string(apiBase), gitea.SetToken(string(giteaToken)))
 
-	_, _, err = giteaClient.CreateStatus(orgSlug, repo, payload["build"]["commit"], status)
+	_, _, err := giteaClient.CreateStatus(orgSlug, repo, gjson.Get(string(input), "build.commit").String(), status)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

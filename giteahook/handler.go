@@ -2,12 +2,11 @@ package function
 
 import (
 	"crypto/subtle"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
-	"github.com/buildkite/go-buildkite/v2"
-	"github.com/itchyny/gojq"
+	"github.com/buildkite/go-buildkite/v2/buildkite"
+	"github.com/tidwall/gjson"
 )
 
 func Handle(w http.ResponseWriter, r *http.Request) {
@@ -20,8 +19,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urlSecret := queryString.Get("secret")
-	envSecret := getAPISecret("gitea-secret")
-	if !secureCompare(urlSecret, envSecret) {
+	envSecret, _ := getAPISecret("gitea-secret")
+	if !secureCompare(urlSecret, string(envSecret)) {
 		w.WriteHeader(http.StatusForbidden)
 		w.Write([]byte("Secret Validation failed"))
 		return
@@ -40,29 +39,33 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var payload map[string]interface{}
-
-	err := json.NewDecoder(r.Body).Decode(&payload)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	buildkiteConfig, _ := buildkite.NewTokenConfig(getAPISecret("buildkite-secret"), false)
+	buildkiteSecret, _ := getAPISecret("buildkite-secret")
+	buildkiteConfig, _ := buildkite.NewTokenConfig(string(buildkiteSecret), false)
 
 	client := buildkite.NewClient(buildkiteConfig.Client())
 
+	var input []byte
+
+	if r.Body == nil {
+		// TODO: no json passed
+		return
+	}
+
+	defer r.Body.Close()
+
+	input, _ = ioutil.ReadAll(r.Body)
+
 	build := buildkite.CreateBuild{
-		Commit:  payload["after"],
-		Branch:  payload["ref"],
-		Message: payload["commits"][0]["message"],
+		Commit:  gjson.Get(string(input), "after").String(),
+		Branch:  gjson.Get(string(input), "ref").String(),
+		Message: gjson.Get(string(input), "commits.0.message").String(),
 		Author: buildkite.Author{
-			Name:  payload["pusher"]["login"],
-			Email: payload["pusher"]["email"],
+			Name:  gjson.Get(string(input), "pusher.login").String(),
+			Email: gjson.Get(string(input), "pusher.email").String(),
 		},
 	}
 
-	_, _, err = client.BuildService.Create(orgSlug, payload, build)
+	_, _, err := client.Builds.Create(orgSlug, pipeline, &build)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
