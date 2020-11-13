@@ -4,6 +4,7 @@ import (
 	"crypto/subtle"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/buildkite/go-buildkite/v2/buildkite"
 	"github.com/tidwall/gjson"
