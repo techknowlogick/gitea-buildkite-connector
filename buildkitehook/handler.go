@@ -2,6 +2,7 @@ package function
 
 import (
 	"crypto/subtle"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -64,7 +65,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	_, _, err := giteaClient.CreateStatus(orgSlug, repo, gjson.Get(string(input), "build.commit").String(), status)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Error from Gitea: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 

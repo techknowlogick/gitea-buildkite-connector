@@ -39,8 +39,13 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buildkiteSecret, _ := getAPISecret("buildkite-secret")
-	buildkiteConfig, _ := buildkite.NewTokenConfig(string(buildkiteSecret), false)
+	buildkiteSecret, _ := getAPISecret("buildkite-token")
+	buildkiteConfig, err := buildkite.NewTokenConfig(string(buildkiteSecret), false)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	client := buildkite.NewClient(buildkiteConfig.Client())
 
@@ -65,7 +70,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	_, _, err := client.Builds.Create(orgSlug, pipeline, &build)
+	_, _, err = client.Builds.Create(orgSlug, pipeline, &build)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
