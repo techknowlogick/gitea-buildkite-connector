@@ -1,6 +1,6 @@
 # Gitea/Buildkite Connector
 
-OpenFaaS functions that connect Gitea and Bulidkite to trigger builds and report build statuses back
+[OpenFaaS](https://www.openfaas.com/) functions that connect Gitea and Bulidkite to trigger builds and report build statuses back
 
 ## Getting started
 
