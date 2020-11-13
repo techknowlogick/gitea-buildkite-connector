@@ -62,7 +62,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 	build := buildkite.CreateBuild{
 		Commit:  gjson.Get(string(input), "after").String(),
-		Branch:  gjson.Get(string(input), "ref").String(),
+		Branch:  trimRef(gjson.Get(string(input), "ref").String()),
 		Message: gjson.Get(string(input), "commits.0.message").String(),
 		Author: buildkite.Author{
 			Name:  gjson.Get(string(input), "pusher.login").String(),
@@ -79,6 +79,13 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Build was sent to Bulidkite"))
+}
+
+// TrimRef returns ref without the path prefix.
+func trimRef(ref string) string {
+	ref = strings.TrimPrefix(ref, "refs/heads/")
+	ref = strings.TrimPrefix(ref, "refs/tags/")
+	return ref
 }
 
 // function taken from https://docs.openfaas.com/reference/secrets/#use-the-secret-in-your-function
