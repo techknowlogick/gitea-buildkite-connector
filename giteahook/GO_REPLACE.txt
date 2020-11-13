@@ -1,0 +1,9 @@
+
+require (
+	github.com/buildkite/go-buildkite/v2 v2.5.1
+	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
+	github.com/itchyny/gojq v0.11.2
+	github.com/tidwall/gjson v1.6.3
+	github.com/tidwall/match v1.0.2 // indirect
+	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
+)

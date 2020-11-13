@@ -1,0 +1,24 @@
+version: 1.0
+provider:
+  name: openfaas
+functions:
+  giteahook:
+    lang: golang-middleware
+    handler: ./giteahook
+    image: techknowlogick/gitea-buildkite-connector:faas-giteahook
+    secrets:
+    - buildkite-token
+    - gitea-secret
+    build_args:
+      GO111MODULE: on
+
+  buildkitehook:
+    lang: golang-middleware
+    handler: ./buildkitehook
+    image: techknowlogick/gitea-buildkite-connector:faas-buildkitehook
+    secrets:
+    - gitea-api-base
+    - buildkite-secret
+    - gitea-token
+    build_args:
+      GO111MODULE: on
