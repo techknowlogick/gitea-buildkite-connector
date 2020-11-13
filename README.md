@@ -9,23 +9,33 @@ OpenFaaS functions that connect Gitea and Bulidkite to trigger builds and report
 First you'll need to create the secrets that that once deployed the functions can start to work
 
 * Buildkite API Key
+
 Go to [Bulidkite Settings](https://buildkite.com/user/api-access-tokens) and create an API key that has `write_builds` REST scope
+
 `faas secret create buildkite-token --from-literal "BUILDKITE_API_KEY"`
 
 * Buildkite Webhook Secret
+
 This is a shared secret that'll verify data sent to function. You can choose what to make this string, just make sure to make it secure
+
 `faas secret create buildkite-secret --from-literal "BUILDKITE_WEBHOOK_SECRET"`
 
 * Gitea API Key
+
 Go to Gitea user application settings https://gitea.example.com/user/settings/applications and create an API token
+
 `faas secret create gitea-token --from-literal "GITEA_API_KEY"`
 
 * Gitea Webhook Secret
+
 This is a shared secret that'll verify data sent to function. You can choose what to make this string, just make sure to make it secure
+
 `faas secret create gitea-secret --from-literal "GITEA_WEBHOOK_SECRET"`
 
 * Gitea API Base
+
 This is the URL to the Gitea install so that API calls know where to call
+
 `faas secret create gitea-api-base --from-literal "https://gitea.example.com"`
 
 
